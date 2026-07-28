@@ -20,7 +20,7 @@ import {
   type AppSettings,
 } from '@/constants/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from './supabase';
+import { supabase } from '@/constants/supabase';
 
 const ADMIN_PIN_HASH = process.env.EXPO_PUBLIC_ADMIN_PIN_HASH || 'a14a0fd45e4ab5c0ee8b4d825b7eeae94c03b1239f2eb50e395efbeecffbfa08';
 
@@ -342,7 +342,7 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF5FC' },
   scroll: { flex: 1 },
-  content: { padding: 16, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 16 },
+  content: { padding: 16, paddingBottom: 80, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 16 },
 
   authContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20, backgroundColor: '#FFF5FC' },
   authCard: { width: '100%', maxWidth: 360, backgroundColor: '#fff', borderRadius: 20, padding: 24, alignItems: 'center', gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },

@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   clearBtn: { padding: 6 },
 
   scroll: { flex: 1 },
-  content: { padding: 16, paddingBottom: 40, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
+  content: { padding: 16, paddingBottom: 80, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
 
   emptyCard: { backgroundColor: '#fff', borderRadius: 20, padding: 32, alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 40, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
   emptyTitle: { fontSize: 18, fontWeight: '800', color: PINK_PASTEL.primaryDark, marginTop: 4 },

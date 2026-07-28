@@ -93,7 +93,7 @@ export default function StoreCatalogScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF5FC' },
   scroll: { flex: 1 },
-  content: { padding: 16, paddingBottom: 30, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
+  content: { padding: 16, paddingBottom: 80, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
 
   bannerContainer: { width: '100%', height: 220, borderRadius: 20, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
   bannerImage: { width: '100%', height: '100%' },
