@@ -26,7 +26,12 @@ export default function StoreCatalogScreen() {
       <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { maxWidth: isDesktop ? 960 : 640 }]} showsVerticalScrollIndicator={false}>
         {/* Banner Image Header */}
         <ThemedView style={[styles.bannerContainer, { height: isDesktop ? 280 : 200 }]}>
-          <Image source={require('../../assets/images/Housegame.png')} style={styles.bannerImage} contentFit="cover" />
+          <Image
+            source={require('../../assets/images/Housegame.png')}
+            style={[styles.bannerImage, { objectPosition: '50% 60%' } as any]}
+            contentFit="cover"
+            contentPosition={{ top: '60%', left: '50%' }}
+          />
         </ThemedView>
 
         {/* Brand Section */}
