@@ -77,7 +77,6 @@ export default function HistoryScreen() {
   };
 
   const reOpenWhatsApp = (order: OrderItem) => {
-    const fields = ACCOUNT_FIELDS[order.gameId] || [];
     const lines: string[] = [];
     lines.push('*PESANAN AII TOP-UP*');
     lines.push(`Kode Order: *${order.id}*`);
@@ -85,10 +84,17 @@ export default function HistoryScreen() {
     lines.push(`Game: *${order.gameName}*`);
     lines.push(`Paket: *${order.amount.toLocaleString()} ${order.currency}*`);
     lines.push('');
-    for (const f of fields) {
-      const val = order.accountData?.[f.key];
-      if (val) {
-        lines.push(`${f.label}: ${f.key.toLowerCase().includes('sandi') || f.key.toLowerCase().includes('password') ? val.split('').map(() => '*').join('') : val}`);
+    const keyToLabel: Record<string, string> = {
+      'user_id': order.gameId === 'roblox' ? 'Username Roblox' : 'ID Pemain',
+      'password': 'Kata Sandi',
+      'server_id': 'Server / Zona',
+      'nickname': 'Nickname',
+    };
+    if (order.accountData) {
+      for (const [k, v] of Object.entries(order.accountData)) {
+        if (!v) continue;
+        const label = keyToLabel[k] || k;
+        lines.push(`${label}: ${v}`);
       }
     }
     lines.push('');
@@ -188,14 +194,19 @@ export default function HistoryScreen() {
                   <ThemedText style={styles.detailValueBold}>{order.amount.toLocaleString()} {order.currency}</ThemedText>
                 </View>
 
-                {fields.map(f => {
-                  const val = order.accountData?.[f.key];
-                  if (!val) return null;
-                  const masked = f.key.toLowerCase().includes('sandi') || f.key.toLowerCase().includes('password');
+                {order.accountData && Object.entries(order.accountData).map(([k, v]) => {
+                  if (!v) return null;
+                  const keyToLabel: Record<string, string> = {
+                    'user_id': order.gameId === 'roblox' ? 'Username Roblox' : 'ID Pemain',
+                    'password': 'Kata Sandi',
+                    'server_id': 'Server / Zona',
+                    'nickname': 'Nickname',
+                  };
+                  const label = keyToLabel[k] || k;
                   return (
-                    <View key={f.key} style={styles.detailRow}>
-                      <ThemedText style={styles.detailLabel}>{f.label}</ThemedText>
-                      <ThemedText style={styles.detailValue}>{masked ? val.replace(/./g, '•') : val}</ThemedText>
+                    <View key={k} style={styles.detailRow}>
+                      <ThemedText style={styles.detailLabel}>{label}</ThemedText>
+                      <ThemedText style={styles.detailValue}>{v}</ThemedText>
                     </View>
                   );
                 })}

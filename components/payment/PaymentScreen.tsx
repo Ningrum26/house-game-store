@@ -39,6 +39,27 @@ export default function PaymentScreen({ cart, onClose, adminWa, adminFee }: Prop
   const gameConfig = GAMES[cart.gameId || ''];
   const gameImg = gameConfig?.image;
 
+  const getAccountDataEntries = (): { label: string; value: string; masked: boolean }[] => {
+    const entries: { label: string; value: string; masked: boolean }[] = [];
+    if (!cart.accountData) return entries;
+
+    const keyToLabel: Record<string, string> = {
+      'user_id': cart.gameId === 'roblox' ? 'Username Roblox' : 'ID Pemain',
+      'password': 'Kata Sandi',
+      'server_id': 'Server / Zona',
+      'nickname': 'Nickname',
+    };
+
+    for (const [key, val] of Object.entries(cart.accountData)) {
+      if (!val) continue;
+      const label = keyToLabel[key] || key;
+      entries.push({ label, value: val, masked: false });
+    }
+    return entries;
+  };
+
+  const accountEntries = getAccountDataEntries();
+
   const buildMessage = (): string => {
     const lines: string[] = [];
     lines.push('*PESANAN AII TOP-UP*');
@@ -46,11 +67,8 @@ export default function PaymentScreen({ cart, onClose, adminWa, adminFee }: Prop
     lines.push(`Game: *${cart.gameName}*`);
     lines.push(`Paket: *${cart.amount.toLocaleString()} ${cart.currency}*`);
     lines.push('');
-    for (const f of fields) {
-      const val = cart.accountData?.[f.key];
-      if (val) {
-        lines.push(`${f.label}: ${f.key.toLowerCase().includes('sandi') || f.key.toLowerCase().includes('password') ? val.split('').map(() => '*').join('') : val}`);
-      }
+    for (const e of accountEntries) {
+      lines.push(`${e.label}: ${e.value}`);
     }
     lines.push('');
     lines.push(`Harga: Rp${cart.price.toLocaleString()}`);
@@ -115,20 +133,15 @@ export default function PaymentScreen({ cart, onClose, adminWa, adminFee }: Prop
             <View style={styles.line} />
 
             {/* Account Data */}
-            {fields.length > 0 && (
+            {accountEntries.length > 0 && (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Data Akun</Text>
-                {fields.map(f => {
-                  const val = cart.accountData?.[f.key];
-                  if (!val) return null;
-                  const masked = f.key.toLowerCase().includes('sandi') || f.key.toLowerCase().includes('password');
-                  return (
-                    <View key={f.key} style={styles.fieldRow}>
-                      <Text style={styles.fieldLabel}>{f.label}</Text>
-                      <Text style={styles.fieldValue}>{masked ? val.replace(/./g, '•') : val}</Text>
-                    </View>
-                  );
-                })}
+                {accountEntries.map((e, idx) => (
+                  <View key={idx} style={styles.fieldRow}>
+                    <Text style={styles.fieldLabel}>{e.label}</Text>
+                    <Text style={styles.fieldValue}>{e.value}</Text>
+                  </View>
+                ))}
               </View>
             )}
 

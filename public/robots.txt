@@ -1,0 +1,8 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /_expo/
+
+# Host & Sitemap
+Sitemap: https://house-game-store.vercel.app/sitemap.xml

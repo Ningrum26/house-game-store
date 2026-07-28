@@ -28,14 +28,18 @@ export interface GameConfig {
 }
 
 const ID_FIELD: AccountField = { key: 'user_id', label: 'ID Pemain', placeholder: 'Masukkan ID pemain', required: true };
-const SANDI_FIELD: AccountField = { key: 'password', label: 'Kata Sandi', placeholder: 'Masukkan kata sandi akun', required: true, };
+const SANDI_FIELD: AccountField = { key: 'password', label: 'Kata Sandi', placeholder: 'Masukkan kata sandi akun', required: true };
 const NICK_FIELD: AccountField = { key: 'nickname', label: 'Nickname', placeholder: 'Masukkan nickname', required: true };
 const SERVER_FIELD: AccountField = { key: 'server_id', label: 'Server / Zona', placeholder: 'Cth: 2251 / Asia', required: true };
 const TAG_FIELD: AccountField = { key: 'player_tag', label: 'Player Tag', placeholder: 'Masukkan tag pemain (#ABC123)', required: true };
 
+export const ROBLOX_USERNAME_FIELD: AccountField = { key: 'user_id', label: 'Username Roblox', placeholder: 'Masukkan Username Roblox', required: true };
+export const ROBLOX_GAMEPASS_FIELDS: AccountField[] = [ROBLOX_USERNAME_FIELD];
+export const ROBLOX_LOGIN_FIELDS: AccountField[] = [ROBLOX_USERNAME_FIELD, SANDI_FIELD];
+
 export const ACCOUNT_FIELDS: Record<string, AccountField[]> = {
-  roblox:              [ID_FIELD, SANDI_FIELD],
-  'mobile-legends':    [ID_FIELD, SANDI_FIELD, SERVER_FIELD, NICK_FIELD],
+  roblox:              ROBLOX_GAMEPASS_FIELDS,
+  'mobile-legends':    [ID_FIELD, SERVER_FIELD, NICK_FIELD],
   freefire:            [ID_FIELD, SANDI_FIELD, NICK_FIELD],
   pubg:                [ID_FIELD, SANDI_FIELD, NICK_FIELD],
   'genshin-impact':    [{ ...ID_FIELD, label: 'UID', placeholder: 'Masukkan UID' }, SANDI_FIELD, SERVER_FIELD],

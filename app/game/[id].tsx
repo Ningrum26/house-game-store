@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { GAMES, ACCOUNT_FIELDS, type GameConfig, type TopUpPackage } from '@/constants/games';
+import { GAMES, ACCOUNT_FIELDS, ROBLOX_GAMEPASS_FIELDS, ROBLOX_LOGIN_FIELDS, type GameConfig } from '@/constants/games';
 import AccountDataForm from '@/components/payment/AccountDataForm';
 import PaymentScreen from '@/components/payment/PaymentScreen';
 import { loadGames, loadSettings, type AppSettings } from '@/constants/store';
@@ -18,6 +18,7 @@ export default function GameDetailScreen() {
   const [activeGames, setActiveGames] = useState<Record<string, GameConfig>>(GAMES);
   const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
   const [accountData, setAccountData] = useState<Record<string, string>>({});
+  const [robloxMethod, setRobloxMethod] = useState<'gamepass' | 'login'>('gamepass');
   const [showPaymentScreen, setShowPaymentScreen] = useState(false);
   const [cartData, setCartData] = useState<any>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>({ adminWa: '62881025426010', adminFee: 2000 });
@@ -40,6 +41,10 @@ export default function GameDetailScreen() {
     );
   }
 
+  const isRoblox = game.id === 'roblox';
+  const robloxFields = robloxMethod === 'gamepass' ? ROBLOX_GAMEPASS_FIELDS : ROBLOX_LOGIN_FIELDS;
+  const currentAccountFields = isRoblox ? robloxFields : (ACCOUNT_FIELDS[game.id] || ACCOUNT_FIELDS['roblox']);
+
   const handleTopUp = () => {
     if (!selectedPkg) {
       Alert.alert('Peringatan', 'Harap pilih paket top-up!');
@@ -50,18 +55,24 @@ export default function GameDetailScreen() {
       Alert.alert('Error', 'Paket tidak ditemukan!');
       return;
     }
-    const fields = ACCOUNT_FIELDS[game.id] || ACCOUNT_FIELDS['roblox'];
-    for (const f of fields) {
+
+    for (const f of currentAccountFields) {
       if (f.required !== false && !(accountData[f.key] || '').trim()) {
         Alert.alert('Peringatan', `Harap isi ${f.label}!`);
         return;
       }
     }
+
+    const finalAccountData: Record<string, string> = { ...accountData };
+    if (isRoblox) {
+      finalAccountData['Metode Top-Up'] = robloxMethod === 'gamepass' ? 'Via Gamepass (Tanpa Password)' : 'Via Fast Login (Dengan Password)';
+    }
+
     setCartData({
       gameName: game.name,
       gameId: game.id,
       gameColor: game.color,
-      accountData: { ...accountData },
+      accountData: finalAccountData,
       amount: pkg.amount,
       currency: pkg.currency,
       price: pkg.price,
@@ -91,26 +102,103 @@ export default function GameDetailScreen() {
           <ThemedText style={styles.gameSub}>Top-Up {game.currency} Resmi & Cepat</ThemedText>
         </ThemedView>
 
-        {/* Step 1: Form Data Akun */}
+        {/* Roblox Method Selector */}
+        {isRoblox && (
+          <ThemedView style={styles.section}>
+            <ThemedView style={styles.stepTitleRow}>
+              <ThemedView style={styles.stepBadge}>
+                <ThemedText style={styles.stepBadgeText}>1</ThemedText>
+              </ThemedView>
+              <ThemedText style={styles.sectionTitle}>Pilih Metode Top-Up Roblox</ThemedText>
+            </ThemedView>
+
+            <ThemedView style={styles.methodGrid}>
+              {/* Option A: Via Gamepass */}
+              <Pressable
+                style={[
+                  styles.methodCard,
+                  robloxMethod === 'gamepass' && styles.methodCardActiveGamepass
+                ]}
+                onPress={() => setRobloxMethod('gamepass')}
+              >
+                <ThemedView style={styles.methodHeader}>
+                  <MaterialIcons
+                    name={robloxMethod === 'gamepass' ? 'radio-button-checked' : 'radio-button-unchecked'}
+                    size={20}
+                    color={robloxMethod === 'gamepass' ? '#27ae60' : '#888'}
+                  />
+                  <ThemedText style={[styles.methodTitle, robloxMethod === 'gamepass' && { color: '#27ae60' }]}>
+                    🟢 Via Gamepass
+                  </ThemedText>
+                </ThemedView>
+                <ThemedView style={styles.methodBadgeGamepass}>
+                  <ThemedText style={styles.methodBadgeTextGamepass}>⭐ REKOMENDASI (Tanpa Password)</ThemedText>
+                </ThemedView>
+                <ThemedText style={styles.methodSub}>
+                  Aman 100%! Cukup masukkan Username Roblox kamu tanpa membagikan kata sandi.
+                </ThemedText>
+              </Pressable>
+
+              {/* Option B: Via Fast Login */}
+              <Pressable
+                style={[
+                  styles.methodCard,
+                  robloxMethod === 'login' && styles.methodCardActiveLogin
+                ]}
+                onPress={() => setRobloxMethod('login')}
+              >
+                <ThemedView style={styles.methodHeader}>
+                  <MaterialIcons
+                    name={robloxMethod === 'login' ? 'radio-button-checked' : 'radio-button-unchecked'}
+                    size={20}
+                    color={robloxMethod === 'login' ? '#2980b9' : '#888'}
+                  />
+                  <ThemedText style={[styles.methodTitle, robloxMethod === 'login' && { color: '#2980b9' }]}>
+                    🔵 Via Fast Login
+                  </ThemedText>
+                </ThemedView>
+                <ThemedView style={styles.methodBadgeLogin}>
+                  <ThemedText style={styles.methodBadgeTextLogin}>🔑 Membutuhkan Password Akun</ThemedText>
+                </ThemedView>
+                <ThemedText style={styles.methodSub}>
+                  Proses Kilat! Tim admin akan login ke akun kamu untuk mengisikan Robux secara langsung.
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+          </ThemedView>
+        )}
+
+        {/* Step: Form Data Akun */}
         <ThemedView style={styles.section}>
           <ThemedView style={styles.stepTitleRow}>
             <ThemedView style={styles.stepBadge}>
-              <ThemedText style={styles.stepBadgeText}>1</ThemedText>
+              <ThemedText style={styles.stepBadgeText}>{isRoblox ? '2' : '1'}</ThemedText>
             </ThemedView>
             <ThemedText style={styles.sectionTitle}>Masukkan Data Akun</ThemedText>
           </ThemedView>
+
           <AccountDataForm
             gameId={game.id}
+            customFields={currentAccountFields}
             values={accountData}
             onChange={(key, val) => setAccountData(prev => ({ ...prev, [key]: val }))}
           />
+
+          {isRoblox && robloxMethod === 'gamepass' && (
+            <ThemedView style={styles.hintBoxGamepass}>
+              <MaterialIcons name="info-outline" size={18} color="#27ae60" />
+              <ThemedText style={styles.hintTextGamepass}>
+                Tips: Buat Gamepass di Roblox Studio / Web Roblox sesuai nominal harga paket, lalu tim admin akan membeli Gamepass kamu!
+              </ThemedText>
+            </ThemedView>
+          )}
         </ThemedView>
 
-        {/* Step 2: Pilih Paket */}
+        {/* Step: Pilih Paket */}
         <ThemedView style={styles.section}>
           <ThemedView style={styles.stepTitleRow}>
             <ThemedView style={styles.stepBadge}>
-              <ThemedText style={styles.stepBadgeText}>2</ThemedText>
+              <ThemedText style={styles.stepBadgeText}>{isRoblox ? '3' : '2'}</ThemedText>
             </ThemedView>
             <ThemedText style={styles.sectionTitle}>Pilih Nominal Paket</ThemedText>
           </ThemedView>
@@ -139,7 +227,7 @@ export default function GameDetailScreen() {
           </ThemedView>
         </ThemedView>
 
-        {/* Step 3: Tombol Bayar */}
+        {/* Tombol Bayar */}
         <Pressable style={[styles.topUpBtn, { backgroundColor: game.color }]} onPress={handleTopUp}>
           <MaterialIcons name="chat" size={22} color="#fff" />
           <ThemedText style={styles.topUpBtnText}>Bayar via WhatsApp</ThemedText>
@@ -177,6 +265,21 @@ const styles = StyleSheet.create({
   stepBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: PINK_PASTEL.primary, alignItems: 'center', justifyContent: 'center' },
   stepBadgeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#333' },
+
+  methodGrid: { gap: 12 },
+  methodCard: { padding: 14, borderRadius: 14, borderWidth: 1.5, borderColor: '#F0E0EA', backgroundColor: '#FFFAFD', gap: 6 },
+  methodCardActiveGamepass: { borderColor: '#27ae60', backgroundColor: '#E8F8F5' },
+  methodCardActiveLogin: { borderColor: '#2980b9', backgroundColor: '#EBF5FB' },
+  methodHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  methodTitle: { fontSize: 15, fontWeight: '800', color: '#333' },
+  methodBadgeGamepass: { alignSelf: 'flex-start', backgroundColor: '#D4EDDA', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  methodBadgeTextGamepass: { fontSize: 10, fontWeight: '800', color: '#155724' },
+  methodBadgeLogin: { alignSelf: 'flex-start', backgroundColor: '#D1ECF1', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  methodBadgeTextLogin: { fontSize: 10, fontWeight: '800', color: '#0C5460' },
+  methodSub: { fontSize: 12, color: '#666', lineHeight: 16 },
+
+  hintBoxGamepass: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#E8F8F5', padding: 12, borderRadius: 10, borderLeftWidth: 3, borderLeftColor: '#27ae60' },
+  hintTextGamepass: { flex: 1, fontSize: 12, color: '#1E8449', lineHeight: 16 },
 
   pkgGrid: { gap: 10 },
   pkgCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: 14, borderWidth: 1.5, borderColor: '#F0E0EA', backgroundColor: '#FFFAFD' },

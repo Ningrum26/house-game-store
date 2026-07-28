@@ -22,8 +22,10 @@ export default function StoreCatalogScreen() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Banner Image */}
-        <Image source={require('../../assets/images/Housegame.png')} style={styles.bannerImage} contentFit="contain" />
+        {/* Banner Image - Mentok Kanan Kiri & Lebih Besar */}
+        <ThemedView style={styles.bannerContainer}>
+          <Image source={require('../../assets/images/Housegame.png')} style={styles.bannerImage} contentFit="cover" />
+        </ThemedView>
 
         {/* Brand Section */}
         <ThemedView style={styles.brandSection}>
@@ -78,6 +80,10 @@ export default function StoreCatalogScreen() {
             <MaterialIcons name="camera-alt" size={18} color={PINK_PASTEL.primaryDark} />
             <ThemedText style={styles.contactText}>@Aeezee05</ThemedText>
           </ThemedView>
+          <ThemedView style={styles.contactRow}>
+            <MaterialIcons name="email" size={18} color={PINK_PASTEL.primaryDark} />
+            <ThemedText style={styles.contactText}>aarum1217@gmail.com</ThemedText>
+          </ThemedView>
         </ThemedView>
       </ScrollView>
     </ThemedView>
@@ -89,7 +95,8 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   content: { padding: 16, paddingBottom: 30, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
 
-  bannerImage: { width: '100%', height: 160, borderRadius: 16 },
+  bannerContainer: { width: '100%', height: 220, borderRadius: 20, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6, elevation: 3 },
+  bannerImage: { width: '100%', height: '100%' },
 
   brandSection: { alignItems: 'center', backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   brandTitle: { fontSize: 26, fontWeight: '800', color: PINK_PASTEL.primaryDark, letterSpacing: 0.5 },
@@ -108,8 +115,8 @@ const styles = StyleSheet.create({
   aiBannerTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
   aiBannerSub: { color: '#fff', fontSize: 12, opacity: 0.9, marginTop: 2 },
 
-  contactSection: { backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, gap: 8, marginTop: 4 },
+  contactSection: { backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2, gap: 10, marginTop: 4 },
   contactTitle: { fontSize: 14, fontWeight: '700', color: PINK_PASTEL.textPrimary },
-  contactRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  contactRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   contactText: { fontSize: 13, color: '#666', fontWeight: '600' },
 });

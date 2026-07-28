@@ -6,10 +6,11 @@ interface Props {
   gameId: string;
   values: Record<string, string>;
   onChange: (key: string, value: string) => void;
+  customFields?: AccountField[];
 }
 
-export default function AccountDataForm({ gameId, values, onChange }: Props) {
-  const fields = ACCOUNT_FIELDS[gameId] || ACCOUNT_FIELDS['roblox'];
+export default function AccountDataForm({ gameId, values, onChange, customFields }: Props) {
+  const fields = customFields || ACCOUNT_FIELDS[gameId] || ACCOUNT_FIELDS['roblox'];
 
   return (
     <View style={styles.container}>
