@@ -13,7 +13,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopColor: PINK_PASTEL.border,
-          height: Platform.OS === 'web' ? 68 : 65,
+          height: Platform.OS === 'web' ? 80 : 65,
           paddingTop: 6,
           paddingBottom: Platform.OS === 'web' ? 8 : 10,
           boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
