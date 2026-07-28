@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { StyleSheet, ScrollView, Pressable, View, Linking, Alert, Platform } from 'react-native';
+import { StyleSheet, ScrollView, Pressable, View, Linking, Alert, Platform, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -12,6 +12,9 @@ import { loadSettings } from '@/constants/store';
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 768;
+
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [adminWa, setAdminWa] = useState('62881025426010');
 
@@ -139,7 +142,7 @@ export default function HistoryScreen() {
         )}
       </ThemedView>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { maxWidth: isDesktop ? 960 : 640 }]} showsVerticalScrollIndicator={false}>
         {orders.length === 0 ? (
           <ThemedView style={styles.emptyCard}>
             <MaterialIcons name="shopping-bag" size={56} color="#dba1c4" />
@@ -153,93 +156,94 @@ export default function HistoryScreen() {
             </Pressable>
           </ThemedView>
         ) : (
-          orders.map(order => {
-            const gameConfig = GAMES[order.gameId];
-            const gameImg = gameConfig?.image;
-            const fields = ACCOUNT_FIELDS[order.gameId] || [];
-            const isPaid = order.status === 'Selesai';
+          <ThemedView style={isDesktop ? styles.orderGridDesktop : styles.orderGridMobile}>
+            {orders.map(order => {
+              const gameConfig = GAMES[order.gameId];
+              const gameImg = gameConfig?.image;
+              const isPaid = order.status === 'Selesai';
 
-            return (
-              <ThemedView key={order.id} style={styles.orderCard}>
-                {/* Order Top Row */}
-                <View style={styles.cardHeader}>
-                  {gameImg ? (
-                    <Image source={gameImg} style={styles.cardLogoImg} contentFit="cover" />
-                  ) : (
-                    <View style={[styles.cardLogoCircle, { backgroundColor: `${order.gameColor}20` }]}>
-                      <MaterialIcons name="sports-esports" size={22} color={order.gameColor} />
+              return (
+                <ThemedView key={order.id} style={[styles.orderCard, isDesktop && styles.orderCardDesktop]}>
+                  {/* Order Top Row */}
+                  <View style={styles.cardHeader}>
+                    {gameImg ? (
+                      <Image source={gameImg} style={styles.cardLogoImg} contentFit="cover" />
+                    ) : (
+                      <View style={[styles.cardLogoCircle, { backgroundColor: `${order.gameColor}20` }]}>
+                        <MaterialIcons name="sports-esports" size={22} color={order.gameColor} />
+                      </View>
+                    )}
+                    <View style={{ flex: 1 }}>
+                      <ThemedText style={styles.cardGameName}>{order.gameName}</ThemedText>
+                      <ThemedText style={styles.cardOrderCode}>{order.id} • {formatDate(order.createdAt)}</ThemedText>
                     </View>
-                  )}
-                  <View style={{ flex: 1 }}>
-                    <ThemedText style={styles.cardGameName}>{order.gameName}</ThemedText>
-                    <ThemedText style={styles.cardOrderCode}>{order.id} • {formatDate(order.createdAt)}</ThemedText>
-                  </View>
 
-                  <View style={[styles.statusBadge, isPaid ? styles.statusBadgePaid : styles.statusBadgePending]}>
-                    <ThemedText style={[styles.statusBadgeText, isPaid ? styles.statusTextPaid : styles.statusTextPending]}>
-                      {isPaid ? '✅ Sudah Dibayar' : 'Menunggu Pembayaran'}
-                    </ThemedText>
-                  </View>
-
-                  <Pressable style={styles.deleteSingleBtn} onPress={() => handleDeleteSingleOrder(order.id)}>
-                    <MaterialIcons name="close" size={18} color="#999" />
-                  </Pressable>
-                </View>
-
-                <View style={styles.line} />
-
-                {/* Package & Account Info */}
-                <View style={styles.detailRow}>
-                  <ThemedText style={styles.detailLabel}>Paket Nominal</ThemedText>
-                  <ThemedText style={styles.detailValueBold}>{order.amount.toLocaleString()} {order.currency}</ThemedText>
-                </View>
-
-                {order.accountData && Object.entries(order.accountData).map(([k, v]) => {
-                  if (!v) return null;
-                  const keyToLabel: Record<string, string> = {
-                    'user_id': order.gameId === 'roblox' ? 'Username Roblox' : 'ID Pemain',
-                    'password': 'Kata Sandi',
-                    'server_id': 'Server / Zona',
-                    'nickname': 'Nickname',
-                  };
-                  const label = keyToLabel[k] || k;
-                  return (
-                    <View key={k} style={styles.detailRow}>
-                      <ThemedText style={styles.detailLabel}>{label}</ThemedText>
-                      <ThemedText style={styles.detailValue}>{v}</ThemedText>
-                    </View>
-                  );
-                })}
-
-                <View style={styles.line} />
-
-                {/* Total & Actions */}
-                <View style={styles.cardFooter}>
-                  <View>
-                    <ThemedText style={styles.totalLabel}>Total Pembayaran</ThemedText>
-                    <ThemedText style={styles.totalVal}>Rp{order.total.toLocaleString()}</ThemedText>
-                  </View>
-
-                  <View style={styles.actionRow}>
-                    <Pressable
-                      style={[styles.statusToggleBtn, isPaid ? styles.statusTogglePaid : styles.statusTogglePending]}
-                      onPress={() => handleTogglePaidStatus(order)}
-                    >
-                      <MaterialIcons name={isPaid ? 'check-circle' : 'change-circle'} size={15} color={isPaid ? '#27ae60' : '#d35400'} />
-                      <ThemedText style={[styles.statusToggleText, { color: isPaid ? '#27ae60' : '#d35400' }]}>
-                        {isPaid ? 'Sudah Bayar' : 'Tandai Bayar'}
+                    <View style={[styles.statusBadge, isPaid ? styles.statusBadgePaid : styles.statusBadgePending]}>
+                      <ThemedText style={[styles.statusBadgeText, isPaid ? styles.statusTextPaid : styles.statusTextPending]}>
+                        {isPaid ? '✅ Sudah Dibayar' : 'Menunggu Pembayaran'}
                       </ThemedText>
-                    </Pressable>
+                    </View>
 
-                    <Pressable style={styles.reWaBtn} onPress={() => reOpenWhatsApp(order)}>
-                      <MaterialIcons name="chat" size={15} color="#fff" />
-                      <ThemedText style={styles.reWaBtnText}>Kirim Ulang WA</ThemedText>
+                    <Pressable style={styles.deleteSingleBtn} onPress={() => handleDeleteSingleOrder(order.id)}>
+                      <MaterialIcons name="close" size={18} color="#999" />
                     </Pressable>
                   </View>
-                </View>
-              </ThemedView>
-            );
-          })
+
+                  <View style={styles.line} />
+
+                  {/* Package & Account Info */}
+                  <View style={styles.detailRow}>
+                    <ThemedText style={styles.detailLabel}>Paket Nominal</ThemedText>
+                    <ThemedText style={styles.detailValueBold}>{order.amount.toLocaleString()} {order.currency}</ThemedText>
+                  </View>
+
+                  {order.accountData && Object.entries(order.accountData).map(([k, v]) => {
+                    if (!v) return null;
+                    const keyToLabel: Record<string, string> = {
+                      'user_id': order.gameId === 'roblox' ? 'Username Roblox' : 'ID Pemain',
+                      'password': 'Kata Sandi',
+                      'server_id': 'Server / Zona',
+                      'nickname': 'Nickname',
+                    };
+                    const label = keyToLabel[k] || k;
+                    return (
+                      <View key={k} style={styles.detailRow}>
+                        <ThemedText style={styles.detailLabel}>{label}</ThemedText>
+                        <ThemedText style={styles.detailValue}>{v}</ThemedText>
+                      </View>
+                    );
+                  })}
+
+                  <View style={styles.line} />
+
+                  {/* Total & Actions */}
+                  <View style={styles.cardFooter}>
+                    <View>
+                      <ThemedText style={styles.totalLabel}>Total Pembayaran</ThemedText>
+                      <ThemedText style={styles.totalVal}>Rp{order.total.toLocaleString()}</ThemedText>
+                    </View>
+
+                    <View style={styles.actionRow}>
+                      <Pressable
+                        style={[styles.statusToggleBtn, isPaid ? styles.statusTogglePaid : styles.statusTogglePending]}
+                        onPress={() => handleTogglePaidStatus(order)}
+                      >
+                        <MaterialIcons name={isPaid ? 'check-circle' : 'change-circle'} size={15} color={isPaid ? '#27ae60' : '#d35400'} />
+                        <ThemedText style={[styles.statusToggleText, { color: isPaid ? '#27ae60' : '#d35400' }]}>
+                          {isPaid ? 'Sudah Bayar' : 'Tandai Bayar'}
+                        </ThemedText>
+                      </Pressable>
+
+                      <Pressable style={styles.reWaBtn} onPress={() => reOpenWhatsApp(order)}>
+                        <MaterialIcons name="chat" size={15} color="#fff" />
+                        <ThemedText style={styles.reWaBtnText}>Kirim Ulang WA</ThemedText>
+                      </Pressable>
+                    </View>
+                  </View>
+                </ThemedView>
+              );
+            })}
+          </ThemedView>
         )}
       </ScrollView>
     </ThemedView>
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
   clearBtn: { padding: 6 },
 
   scroll: { flex: 1 },
-  content: { padding: 16, paddingBottom: 80, maxWidth: 640, width: '100%', alignSelf: 'center', gap: 14 },
+  content: { padding: 16, paddingBottom: 80, width: '100%', alignSelf: 'center', gap: 14 },
 
   emptyCard: { backgroundColor: '#fff', borderRadius: 20, padding: 32, alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 40, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
   emptyTitle: { fontSize: 18, fontWeight: '800', color: PINK_PASTEL.primaryDark, marginTop: 4 },
@@ -263,7 +267,11 @@ const styles = StyleSheet.create({
   shopBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: PINK_PASTEL.primaryDark, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, marginTop: 8 },
   shopBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
+  orderGridMobile: { gap: 14 },
+  orderGridDesktop: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
+
   orderCard: { backgroundColor: '#fff', borderRadius: 16, padding: 16, gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
+  orderCardDesktop: { width: '48.8%', flexGrow: 1 },
 
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   cardLogoImg: { width: 42, height: 42, borderRadius: 10, borderWidth: 1, borderColor: '#F0E0EA' },

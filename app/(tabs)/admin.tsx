@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal } from 'react-native';
+import { StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal, useWindowDimensions } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import CryptoJS from 'crypto-js';
 import { ThemedText } from '@/components/themed-text';
@@ -25,6 +25,8 @@ import { supabase } from '@/constants/supabase';
 const ADMIN_PIN_HASH = process.env.EXPO_PUBLIC_ADMIN_PIN_HASH || 'a14a0fd45e4ab5c0ee8b4d825b7eeae94c03b1239f2eb50e395efbeecffbfa08';
 
 export default function AdminScreen() {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 768;
   const [adminAuth, setAdminAuth] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
@@ -183,7 +185,7 @@ export default function AdminScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { maxWidth: isDesktop ? 960 : 640 }]} showsVerticalScrollIndicator={false}>
         {/* Admin Header */}
         <ThemedView style={styles.adminHeader}>
           <MaterialIcons name="admin-panel-settings" size={32} color={PINK_PASTEL.primaryDark} />
