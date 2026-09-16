@@ -5,4 +5,4 @@ Disallow: /admin
 Disallow: /_expo/
 
 # Host & Sitemap
-Sitemap: https://house-game-store.aarum1217.workers.dev/sitemap.xml
+Sitemap: https://house-game-store.vercel.app/sitemap.xml
